@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    canvas {
+      border: 1px solid lightgray;
+    }
+  </style>
+</head>
+
+<body onload="startGame()">
+  <div id="container">
+    <button id="restart_id">Restart</button>
+    <ul>
+      <li><label for="a_id">발사각</label>1<input type="range" id="a_id" value="7" min="1" max="9">9 <span
+          id="aRng_id">7</span></li>
+      <li><label for="p_id">발사힘</label>0<input type="range" id="p_id" value="6" min="0" max="10">10 <span
+          id="pRng_id">6</span></li>
+      <li><label for="g_id">중력</label>0<input type="range" id="g_id" value="1" min="0" max="10">10 <span
+          id="gRng_id">1</span></li>
+      <li><label for="r_id">공기저항</label>0<input type="range" id="r_id" value="1" min="0" max="10">10 <span
+          id="rRng_id">1</span></li>
+    </ul>
+  </div>
+  <script>
+    function startGame() {
+      myGamePiece = new component(30, 30, "red", 0, 200);
+      myGameArea.start();
+    }
+
+    var myGameArea = {
+      canvas: document.createElement("canvas"),
+      start: function () {
+        this.reset();
+        this.canvas.width = 500;
+        this.canvas.height = 400;
+        this.context = this.canvas.getContext("2d");
+        var ctl = document.querySelector('#container');
+        ctl.appendChild(this.canvas);
+        this.interval = setInterval(updateGameArea, 20);
+        document.querySelector("#restart_id").addEventListener("click", this.reset);
+        document.querySelector("#a_id").addEventListener("change", function () { document.querySelector("#aRng_id").innerHTML = this.value; });
+        document.querySelector("#p_id").addEventListener("change", function () { document.querySelector("#pRng_id").innerHTML = this.value; });
+        document.querySelector("#g_id").addEventListener("change", function () { document.querySelector("#gRng_id").innerHTML = this.value; });
+        document.querySelector("#r_id").addEventListener("change", function () { document.querySelector("#rRng_id").innerHTML = this.value; });
+      },
+      clear: function () {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      },
+      reset: function () {
+        myGamePiece.x = myGamePiece.ox;
+        myGamePiece.y = myGamePiece.oy;
+        myGamePiece.gSpeed = 0;
+        myGamePiece.a = parseFloat(document.querySelector("#a_id").value);
+        myGamePiece.p = parseFloat(document.querySelector("#p_id").value);
+        myGamePiece.g = parseFloat(document.querySelector("#g_id").value);
+        myGamePiece.r = parseFloat(document.querySelector("#r_id").value);
+      },
+      line: function () {
+        ctx = myGameArea.context;
+        ctx.moveTo(0, 230);
+        ctx.lineTo(500, 230);
+        ctx.stroke();
+      }
+    }
+
+    function component(width, height, color, x, y) {
+      this.width = width;
+      this.height = height;
+      this.ox = x;
+      this.x = x;
+      this.oy = y;
+      this.y = y;
+      this.gSpeed = 0;
+      this.a = parseFloat(document.querySelector("#a_id").value);
+      this.p = parseFloat(document.querySelector("#p_id").value);
+      this.g = parseFloat(document.querySelector("#g_id").value);
+      this.r = parseFloat(document.querySelector("#r_id").value);
+      this.update = function () {
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+      this.newPos = function () {
+        var radian = Math.PI * (10 - this.a) / 20;
+        this.gSpeed = this.gSpeed + this.g / 10;
+        this.p = this.p - this.r / 100;
+        this.x = this.x + Math.sin(radian) * this.p;
+        this.y = this.y - Math.cos(radian) * this.p + this.gSpeed;
+        this.hitBottom();
+      }
+      this.hitBottom = function () {
+        var underground = myGameArea.canvas.height - this.height;
+        // var underground = 200;
+        if (this.y > underground) {
+          this.y = underground;
+          this.gSpeed = 0;
+          this.g = this.g * 2;
+        }
+      }
+    }
+
+    function updateGameArea() {
+      myGameArea.clear();
+      myGameArea.line();
+      myGamePiece.newPos();
+      myGamePiece.update();
+    }
+  </script>
+</body>
+
+</html>
