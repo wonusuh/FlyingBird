@@ -14,7 +14,7 @@ let myGameArea = {
     this.canvas.classList.add(`game`);
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-    this.interval = setInterval(updateGameArea, 1);
+    this.interval = setInterval(updateGameArea, 10);
     this.frameNum = 0;
   },
   clear: function () {
@@ -36,7 +36,7 @@ class Component {
     this.height = height;
     this.x = x;
     this.y = y;
-    this.speed = 1;
+    this.speed = 2;
     const ctx = myGameArea.context;
     this.update = function () {
       ctx.fillStyle = color;
@@ -67,21 +67,40 @@ function updateGameArea() {
   let x, y;
   for (let i = 0; i < myObstacles.length; i += 1) {
     if (myGamePiece.crashWith(myObstacles[i])) {
-      // myGameArea.stop();
-      // return;
+      myGamePiece.x -= 1;
+      // console.log(`왼`, myObstacles[i].x);
+      // console.log(`오`, myObstacles[i].x + myObstacles[i].width);
+      // console.log(`위`, myObstacles[i].y);
+      // console.log(`아래`, myObstacles[i].y + myObstacles[i].height);
+      if (myGamePiece.x + myGamePiece.width >= myObstacles[i].x) {
+        console.log(`오른쪽 충돌`);
+        myGamePiece.x -= 1;
+        key.d = false;
+      } else if (myGamePiece.x <= myObstacles[i].x + myObstacles[i].width) {
+        console.log(`왼쪽 충돌`);
+        myGamePiece.x += 1;
+        key.a = false;
+      } else if (myGamePiece.y <= myObstacles[i].y + myObstacles[i].height) {
+        console.log(`상단 충돌`);
+        key.w = false;
+      } else if (myGamePiece.y + myGamePiece.hi >= myObstacles[i].y) {
+        console.log(`하단 충돌`);
+        myGamePiece.y -= 1;
+        key.s = false;
+      }
     }
   }
   myGameArea.clear();
   myGameArea.frameNum += 1;
   if (myGameArea.frameNum == 1 || everyInterval(200)) {
-    const ran = Math.random() * 200;
+    const ran = parseInt(Math.random() * 200);
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
-    myObstacles.push(new Component(30, ran, `green`, x, y - ran));
-    myObstacles.push(new Component(30, y - ran - 100, `green`, x, 0));
+    myObstacles.push(new Component(90, ran, `green`, x, y - ran));
+    myObstacles.push(new Component(90, y - ran - 300, `green`, x, 0));
   }
-  console.log(`myObstacles.length : `, myObstacles.length);
-  if (myObstacles.length > 20) myObstacles.shift();
+  // console.log(`myObstacles.length : `, myObstacles.length);
+  if (myObstacles.length > 25) myObstacles.shift();
   for (let i = 0; i < myObstacles.length; i += 1) {
     myObstacles[i].x -= 1;
     myObstacles[i].update();
