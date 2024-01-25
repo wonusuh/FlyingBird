@@ -13,3 +13,6 @@
 4. 지형의 모양은 ***무작위로 생성*** 된다.
 5. 생존한 시간에따라 ***score*** 를 얻는다.
 6. 시간이 지남에따라 ***난이도가 증가*** 한다.
+
+References : 
+Francely Nataly. Flying Bird. [pixel-art]. Web site Dribbble. https://dribbble.com/shots/16193188-Flying-Bird-Pixel-Art
