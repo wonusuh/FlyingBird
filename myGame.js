@@ -1,9 +1,15 @@
 let myGamePiece;
 let myObstacles = [];
+let myScore;
+let birdImg = new Image();
+birdImg.src = `./bird.PNG`;
+let flyingBirdImg = new Image();
+flyingBirdImg.src = `./flying.png`;
 
 function startGame() {
+  myGamePiece = new Component(50, 50, `blue`, 30, 0);
+  myScore = new Component(`30px`, `Consolas`, `gold`, 10, 30, `text`);
   myGameArea.start();
-  myGamePiece = new Component(30, 30, `blue`, 30, 250 - 15);
 }
 
 let myGameArea = {
@@ -14,7 +20,7 @@ let myGameArea = {
     this.canvas.classList.add(`game`);
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-    this.interval = setInterval(updateGameArea, 10);
+    this.interval = setInterval(updateGameArea, 1);
     this.frameNum = 0;
   },
   clear: function () {
@@ -31,16 +37,29 @@ function everyInterval(n) {
 }
 
 class Component {
-  constructor(width, height, color, x, y) {
+  constructor(width, height, color, x, y, type) {
+    this.type = type;
     this.width = width;
     this.height = height;
     this.x = x;
     this.y = y;
-    this.speed = 2;
-    const ctx = myGameArea.context;
+    this.speed = 1;
+    this.gravity = 0.03;
+    this.gravitySpeed = 0;
     this.update = function () {
-      ctx.fillStyle = color;
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+      const ctx = myGameArea.context;
+      if (this.type == `text`) {
+        ctx.font = this.width + ` ` + this.height;
+        ctx.fillStyle = color;
+        ctx.fillText(this.text, this.x, this.y);
+      } else if (color == `blue`) {
+        ctx.beginPath();
+        ctx.drawImage(birdImg, this.x, this.y, this.width, this.height);
+        ctx.closePath();
+      } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
     }
     this.crashWith = function (otherObj) {
       let myRight = this.x + this.width;
@@ -58,6 +77,9 @@ class Component {
       if ((myBottom < otherTop) || (myTop > otherBottom) || (myRight < otherLeft) || (myLeft > otherRight)) {
         isCrash = false;
       }
+      if (myBottom >= myGameArea.canvas.height) {
+        isCrash = true;
+      }
       return isCrash;
     }
   }
@@ -67,44 +89,28 @@ function updateGameArea() {
   let x, y;
   for (let i = 0; i < myObstacles.length; i += 1) {
     if (myGamePiece.crashWith(myObstacles[i])) {
-      myGamePiece.x -= 1;
-      // console.log(`왼`, myObstacles[i].x);
-      // console.log(`오`, myObstacles[i].x + myObstacles[i].width);
-      // console.log(`위`, myObstacles[i].y);
-      // console.log(`아래`, myObstacles[i].y + myObstacles[i].height);
-      if (myGamePiece.x + myGamePiece.width >= myObstacles[i].x) {
-        console.log(`오른쪽 충돌`);
-        myGamePiece.x -= 1;
-        key.d = false;
-      } else if (myGamePiece.x <= myObstacles[i].x + myObstacles[i].width) {
-        console.log(`왼쪽 충돌`);
-        myGamePiece.x += 1;
-        key.a = false;
-      } else if (myGamePiece.y <= myObstacles[i].y + myObstacles[i].height) {
-        console.log(`상단 충돌`);
-        key.w = false;
-      } else if (myGamePiece.y + myGamePiece.hi >= myObstacles[i].y) {
-        console.log(`하단 충돌`);
-        myGamePiece.y -= 1;
-        key.s = false;
-      }
+      myGameArea.stop();
+      return;
     }
   }
   myGameArea.clear();
   myGameArea.frameNum += 1;
-  if (myGameArea.frameNum == 1 || everyInterval(200)) {
+  if (myGameArea.frameNum == 1 || everyInterval(150)) {
     const ran = parseInt(Math.random() * 200);
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
-    myObstacles.push(new Component(90, ran, `green`, x, y - ran));
-    myObstacles.push(new Component(90, y - ran - 300, `green`, x, 0));
+    let gap = 300;
+    myObstacles.push(new Component(100, ran, `green`, x, y - ran));
+    myObstacles.push(new Component(100, y - ran - gap, `green`, x, 0));
   }
-  // console.log(`myObstacles.length : `, myObstacles.length);
-  if (myObstacles.length > 25) myObstacles.shift();
+  console.log(`myObstacles.length : `, myObstacles.length);
+  if (myObstacles.length > 20) myObstacles.shift();
   for (let i = 0; i < myObstacles.length; i += 1) {
     myObstacles[i].x -= 1;
     myObstacles[i].update();
   }
+  myScore.text = `SCORE : ` + myGameArea.frameNum;
+  myScore.update();
   movePlayer();
   myGamePiece.update();
 }
@@ -114,9 +120,11 @@ let key = {
   a: false,
   s: false,
   d: false,
+  spaceBar: false,
 }
 
 window.addEventListener(`keydown`, (e) => {
+  // console.log(e);
   keyHandler(e.key, true);
 });
 window.addEventListener(`keyup`, (e) => {
@@ -124,21 +132,26 @@ window.addEventListener(`keyup`, (e) => {
 });
 
 function keyHandler(eKey, value) {
-  if (eKey === `w`) {
-    key.w = value;
-  }
-  if (eKey === `a`) {
-    key.a = value;
-  }
-  if (eKey === `s`) {
-    key.s = value;
-  }
-  if (eKey === `d`) {
-    key.d = value;
+  // if (eKey === `w`) {
+  //   key.w = value;
+  // }
+  // if (eKey === `a`) {
+  //   key.a = value;
+  // }
+  // if (eKey === `s`) {
+  //   key.s = value;
+  // }
+  // if (eKey === `d`) {
+  //   key.d = value;
+  // }
+  if (eKey === ` `) {
+    key.spaceBar = value;
   }
 }
 
 function movePlayer() {
+  myGamePiece.gravitySpeed += myGamePiece.gravity;
+  myGamePiece.y += myGamePiece.gravitySpeed;
   if (key.w && myGamePiece.y > 0) {
     myGamePiece.y -= myGamePiece.speed;
   }
@@ -150,6 +163,13 @@ function movePlayer() {
   }
   if (key.d && myGamePiece.x < myGameArea.canvas.width - myGamePiece.width) {
     myGamePiece.x += myGamePiece.speed;
+  }
+  if (key.spaceBar) {
+    myGamePiece.y -= myGamePiece.speed;
+    myGamePiece.gravitySpeed = 0;
+    birdImg.src = `./flying.png`;
+  } else {
+    birdImg.src = `./bird.png`;
   }
 }
 
