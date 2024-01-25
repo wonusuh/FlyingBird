@@ -2,6 +2,8 @@
 
 ### https://wonusuh.github.io/JavaScriptGameProject/
 
+![게임 예시 이미지](./캡처.PNG)
+
 ### 개발동기 - HTML, CSS, JavaScript 로 구현 된 게임을 제작하고자 함.
 
 ### 구현할 기능
