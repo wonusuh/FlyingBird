@@ -1,9 +1,13 @@
-https://wonusuh.github.io/JavaScriptGameProject/
+# Temporary Game Name
 
-1. 개발동기 - HTML CSS JavaScript 만을 사용해 캐릭터가 장애물을 피해 나아가는 게임을 제작하고자 함.
+### https://wonusuh.github.io/JavaScriptGameProject/
 
-2. 요구사항
-1) 캐릭터가 상하좌우로 이동하는 기능
-2) 캐릭터가 점프하는 기능
-3) 지형이 왼쪽으로 움직이는 기능
-4) 지형의 크기가 랜덤으로 생성되는 기능
+### 개발동기 - HTML, CSS, JavaScript 로 구현 된 게임을 제작하고자 함.
+
+### 구현할 기능
+1. 캐릭터는 상하좌우로 이동할 수 있다.
+2. 캐릭터는 점프할 수 있다.
+3. 지형이 왼쪽으로 이동하므로 마치 플레이어가 오른쪽으로 이동하는것처럼 보인다.
+4. 지형의 모양은 무작위로 생성된다.
+5. 생존한 시간에따라 score를 얻는다.
+6. 시간이 지남에따라 난이도가 증가한다.
