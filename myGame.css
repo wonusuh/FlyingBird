@@ -1,8 +1,17 @@
 body {
-  height: 100vh;
   margin: 0;
+  height: 100vh;
 }
 
-/* .game {
-  background-color: skyblue;
-} */
+.startBtn {
+  position: fixed;
+  font-size: 50px;
+  border-radius: 25px;
+  padding: 25px;
+  left: 425px;
+  top: 225px;
+}
+
+.startBtn:hover {
+  background-color: pink;
+}

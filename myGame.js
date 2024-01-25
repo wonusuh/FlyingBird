@@ -1,3 +1,8 @@
+const startBtn = document.querySelector(`.startBtn`);
+startBtn.addEventListener(`click`, () => {
+  startBtn.style.visibility = `hidden`;
+  startGame();
+});
 let myGamePiece;
 let myObstacles = [];
 let myScore;
@@ -5,18 +10,19 @@ let birdImg = new Image();
 let flyingBirdImg = new Image();
 let tree1 = new Image();
 let backgroundImg = new Image();
-let bugImg = new Image();
+let cloud1Img = new Image();
 birdImg.src = `./imgs/bird.PNG`;
 flyingBirdImg.src = `./imgs/flying.png`;
 tree1.src = `./imgs/tree1.PNG`;
 backgroundImg.src = `./imgs/background1.png`;
-bugImg.src = `./imgs/bug.png`;
+cloud1Img.src = `./imgs/cloud1.PNG`;
 let backX = 1000;
 
 function startGame() {
+  myObstacles = [];
+  myGameArea.start();
   myGamePiece = new Component(50, 50, `blue`, 30, 0);
   myScore = new Component(`30px`, `Consolas`, `gold`, 10, 490, `text`);
-  myGameArea.start();
 }
 
 let myGameArea = {
@@ -26,7 +32,7 @@ let myGameArea = {
     this.canvas.height = 500;
     this.canvas.classList.add(`game`);
     this.context = this.canvas.getContext("2d");
-    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+    document.body.insertBefore(this.canvas, document.body.childNodes[3]);
     this.interval = setInterval(updateGameArea, 1);
     this.frameNum = 0;
   },
@@ -62,7 +68,7 @@ class Component {
       } else if (color == `blue`) {
         ctx.drawImage(birdImg, this.x, this.y, this.width, this.height);
       } else if (color == `black`) {
-        ctx.drawImage(bugImg, this.x, this.y, this.width, this.height);
+        ctx.drawImage(cloud1Img, this.x, this.y, this.width, this.height);
       } else {
         ctx.drawImage(tree1, this.x, this.y, this.width, this.height);
       }
@@ -73,10 +79,10 @@ class Component {
       let myBottom = this.y + this.height;
       let myTop = this.y;
 
-      let otherRight = otherObj.x + otherObj.width;
-      let otherLeft = otherObj.x;
-      let otherBottom = otherObj.y + otherObj.height;
-      let otherTop = otherObj.y;
+      let otherRight = otherObj.x + otherObj.width - 30;
+      let otherLeft = otherObj.x + 30;
+      let otherBottom = otherObj.y + otherObj.height - 30;
+      let otherTop = otherObj.y + 30;
 
       let isCrash = true;
 
@@ -95,26 +101,28 @@ function updateGameArea() {
   let x, y;
   for (let i = 0; i < myObstacles.length; i += 1) {
     if (myGamePiece.crashWith(myObstacles[i])) {
-      // myGameArea.stop();
-      // return;
+      myGameArea.stop();
+      startBtn.style.visibility = `visible`;
+      return;
     }
   }
   myGameArea.clear();
   const ctx = myGameArea.context;
   ctx.drawImage(backgroundImg, backX, 0, myGameArea.canvas.width, myGameArea.canvas.height);
   ctx.drawImage(backgroundImg, backX - myGameArea.canvas.width, 0, myGameArea.canvas.width, myGameArea.canvas.height);
-  // console.log(backX - myGameArea.canvas.width);
   backX -= 0.5;
   if (backX <= 0) { backX = 1000; }
   myGameArea.frameNum += 1;
   if (myGameArea.frameNum == 1 || everyInterval(50)) {
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
-    const ran = parseInt(Math.random() * 250 + 50);
-    let gap = 200;
+    const ran = Math.random() * 250 + 50;
+    let gap = 300;
     myObstacles.push(new Component(100, ran, `green`, x, y - ran));
     if (Math.random() <= 0.2) {
-      myObstacles.push(new Component(Math.random() * 400 + 100, y - ran - gap, `black`, x, 0));
+      let cloudHeight = y - ran - gap;
+      if (cloudHeight <= 25) cloudHeight = 25;
+      myObstacles.push(new Component(Math.random() * 200 + 100, cloudHeight, `black`, x, 0));
     }
   }
   console.log(`myObstacles.length : `, myObstacles.length);
@@ -186,5 +194,3 @@ function movePlayer() {
     birdImg.src = `./imgs/bird.png`;
   }
 }
-
-startGame();
