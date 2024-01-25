@@ -2,13 +2,20 @@ let myGamePiece;
 let myObstacles = [];
 let myScore;
 let birdImg = new Image();
-birdImg.src = `./bird.PNG`;
 let flyingBirdImg = new Image();
-flyingBirdImg.src = `./flying.png`;
+let tree1 = new Image();
+let backgroundImg = new Image();
+let bugImg = new Image();
+birdImg.src = `./imgs/bird.PNG`;
+flyingBirdImg.src = `./imgs/flying.png`;
+tree1.src = `./imgs/tree1.PNG`;
+backgroundImg.src = `./imgs/background1.png`;
+bugImg.src = `./imgs/bug.png`;
+let backX = 1000;
 
 function startGame() {
   myGamePiece = new Component(50, 50, `blue`, 30, 0);
-  myScore = new Component(`30px`, `Consolas`, `gold`, 10, 30, `text`);
+  myScore = new Component(`30px`, `Consolas`, `gold`, 10, 490, `text`);
   myGameArea.start();
 }
 
@@ -53,12 +60,11 @@ class Component {
         ctx.fillStyle = color;
         ctx.fillText(this.text, this.x, this.y);
       } else if (color == `blue`) {
-        ctx.beginPath();
         ctx.drawImage(birdImg, this.x, this.y, this.width, this.height);
-        ctx.closePath();
+      } else if (color == `black`) {
+        ctx.drawImage(bugImg, this.x, this.y, this.width, this.height);
       } else {
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.drawImage(tree1, this.x, this.y, this.width, this.height);
       }
     }
     this.crashWith = function (otherObj) {
@@ -89,22 +95,30 @@ function updateGameArea() {
   let x, y;
   for (let i = 0; i < myObstacles.length; i += 1) {
     if (myGamePiece.crashWith(myObstacles[i])) {
-      myGameArea.stop();
-      return;
+      // myGameArea.stop();
+      // return;
     }
   }
   myGameArea.clear();
+  const ctx = myGameArea.context;
+  ctx.drawImage(backgroundImg, backX, 0, myGameArea.canvas.width, myGameArea.canvas.height);
+  ctx.drawImage(backgroundImg, backX - myGameArea.canvas.width, 0, myGameArea.canvas.width, myGameArea.canvas.height);
+  // console.log(backX - myGameArea.canvas.width);
+  backX -= 0.5;
+  if (backX <= 0) { backX = 1000; }
   myGameArea.frameNum += 1;
-  if (myGameArea.frameNum == 1 || everyInterval(150)) {
-    const ran = parseInt(Math.random() * 200);
+  if (myGameArea.frameNum == 1 || everyInterval(50)) {
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
-    let gap = 300;
+    const ran = parseInt(Math.random() * 250 + 50);
+    let gap = 200;
     myObstacles.push(new Component(100, ran, `green`, x, y - ran));
-    myObstacles.push(new Component(100, y - ran - gap, `green`, x, 0));
+    if (Math.random() <= 0.2) {
+      myObstacles.push(new Component(Math.random() * 400 + 100, y - ran - gap, `black`, x, 0));
+    }
   }
   console.log(`myObstacles.length : `, myObstacles.length);
-  if (myObstacles.length > 20) myObstacles.shift();
+  if (myObstacles.length > 50) myObstacles.shift();
   for (let i = 0; i < myObstacles.length; i += 1) {
     myObstacles[i].x -= 1;
     myObstacles[i].update();
@@ -167,9 +181,9 @@ function movePlayer() {
   if (key.spaceBar) {
     myGamePiece.y -= myGamePiece.speed;
     myGamePiece.gravitySpeed = 0;
-    birdImg.src = `./flying.png`;
+    birdImg.src = `./imgs/flying.png`;
   } else {
-    birdImg.src = `./bird.png`;
+    birdImg.src = `./imgs/bird.png`;
   }
 }
 
