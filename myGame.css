@@ -3,15 +3,49 @@ body {
   height: 100vh;
 }
 
+section {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1000px;
+  height: 500px;
+  background: url(./imgs/background1.png) no-repeat center right;
+}
+
+.name {
+  position: absolute;
+  font-size: 12px;
+  border-radius: 25px;
+  padding: 25px;
+  left: 400px;
+  top: 200px;
+  width: 160px;
+  height: 34px;
+  background-color: gold;
+}
+
 .startBtn {
-  position: fixed;
+  position: absolute;
   font-size: 50px;
   border-radius: 25px;
   padding: 25px;
-  left: 425px;
-  top: 225px;
+  left: 400px;
+  top: 290px;
+  /* visibility: hidden; */
 }
 
 .startBtn:hover {
+  background-color: pink;
+}
+
+.ranking {
+  border-radius: 25px;
+  position: absolute;
+  left: 100px;
+  top: 0px;
+  padding-left: 30px;
+  padding-right: 30px;
+  /* padding-top: 30px; */
+  /* padding-bottom: 30px; */
   background-color: pink;
 }

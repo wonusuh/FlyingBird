@@ -1,24 +1,50 @@
-const startBtn = document.querySelector(`.startBtn`);
-startBtn.addEventListener(`click`, () => {
-  startBtn.style.visibility = `hidden`;
-  startGame();
-});
 let myGamePiece;
 let myObstacles = [];
 let myScore;
 let birdImg = new Image();
+birdImg.src = `./imgs/bird.png`;
 let flyingBirdImg = new Image();
-let tree1 = new Image();
-let backgroundImg = new Image();
-let cloud1Img = new Image();
-birdImg.src = `./imgs/bird.PNG`;
 flyingBirdImg.src = `./imgs/flying.png`;
-tree1.src = `./imgs/tree1.PNG`;
+let backgroundImg = new Image();
 backgroundImg.src = `./imgs/background1.png`;
-cloud1Img.src = `./imgs/cloud1.PNG`;
+let tree1 = new Image();
+tree1.src = `./imgs/tree1.png`;
+let tree2 = new Image();
+tree2.src = `./imgs/tree2.png`;
+// let tree3 = new Image();
+// tree1.src = `./imgs/tree3.png`;
+let cloud1Img = new Image();
+cloud1Img.src = `./imgs/cloud1.png`;
+// let cloud2Img = new Image();
+// cloud1Img.src = `./imgs/cloud2.png`;
+// let cloud3Img = new Image();
+// cloud1Img.src = `./imgs/cloud3.png`;
 let backX = 1000;
+let rankList = [];
+let rankingDiv = document.querySelector(`.ranking`);
+const $section = document.querySelector(`section`);
+const nameInput = document.querySelector(`.name`);
+let playerName = ``;
+const startBtn = document.querySelector(`.startBtn`);
+
+startBtn.addEventListener(`click`, () => {
+  if (nameInput.value.trim() == ``) {
+    alert(`이름을 입력하세요.`);
+    nameInput.focus();
+    return;
+  }
+  startGame();
+});
 
 function startGame() {
+  $section.style.visibility = `hidden`;
+  nameInput.style.visibility = `hidden`;
+  startBtn.style.visibility = `hidden`;
+  rankingDiv.style.visibility = `hidden`;
+  playerName = nameInput.value;
+  nameInput.value = ``;
+  rankingDiv.innerHTML = ``;
+  getScore();
   myObstacles = [];
   myGameArea.start();
   myGamePiece = new Component(50, 50, `blue`, 30, 0);
@@ -32,7 +58,7 @@ let myGameArea = {
     this.canvas.height = 500;
     this.canvas.classList.add(`game`);
     this.context = this.canvas.getContext("2d");
-    document.body.insertBefore(this.canvas, document.body.childNodes[3]);
+    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.interval = setInterval(updateGameArea, 1);
     this.frameNum = 0;
   },
@@ -57,7 +83,7 @@ class Component {
     this.x = x;
     this.y = y;
     this.speed = 1;
-    this.gravity = 0.03;
+    this.gravity = 0.025;
     this.gravitySpeed = 0;
     this.update = function () {
       const ctx = myGameArea.context;
@@ -96,13 +122,21 @@ class Component {
     }
   }
 }
+function endTheGame() {
+  myGameArea.stop();
+  setScore();
+  rankingDiv.innerHTML = ``;
+  getScore();
+  startBtn.style.visibility = `visible`;
+  rankingDiv.style.visibility = `visible`;
+  nameInput.style.visibility = `visible`;
+}
 
 function updateGameArea() {
   let x, y;
   for (let i = 0; i < myObstacles.length; i += 1) {
     if (myGamePiece.crashWith(myObstacles[i])) {
-      myGameArea.stop();
-      startBtn.style.visibility = `visible`;
+      endTheGame();
       return;
     }
   }
@@ -116,13 +150,13 @@ function updateGameArea() {
   if (myGameArea.frameNum == 1 || everyInterval(50)) {
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
-    const ran = Math.random() * 250 + 50;
+    const ran = Math.random() * 150 + 50;
     let gap = 300;
-    myObstacles.push(new Component(100, ran, `green`, x, y - ran));
+    myObstacles.push(new Component(ran, ran, `green`, x, y - ran));
     if (Math.random() <= 0.2) {
       let cloudHeight = y - ran - gap;
       if (cloudHeight <= 25) cloudHeight = 25;
-      myObstacles.push(new Component(Math.random() * 200 + 100, cloudHeight, `black`, x, 0));
+      myObstacles.push(new Component(Math.random() * 200 + 100, Math.random() * 100 + 25, `black`, x, Math.random() * 200));
     }
   }
   console.log(`myObstacles.length : `, myObstacles.length);
@@ -146,7 +180,6 @@ let key = {
 }
 
 window.addEventListener(`keydown`, (e) => {
-  // console.log(e);
   keyHandler(e.key, true);
 });
 window.addEventListener(`keyup`, (e) => {
@@ -194,3 +227,35 @@ function movePlayer() {
     birdImg.src = `./imgs/bird.png`;
   }
 }
+
+function getScore() {
+  let gotList = JSON.parse(localStorage.getItem(`ranking`));
+  if (gotList) rankList = gotList;
+  rankList.sort((beforeObj, afterObj) => {
+    if (beforeObj.score > afterObj.score) {
+      return -1;
+    } else if (beforeObj.score == afterObj.score) {
+      return 0;
+    } else {
+      return 1;
+    }
+  });
+  let i = 0;
+  rankList.forEach((e) => {
+    let $li = document.createElement(`li`);
+    $li.innerHTML = `${++i}위 : ${e.name} ${e.score} 점`;
+    rankingDiv.appendChild($li);
+  });
+}
+function setScore() {
+  let tempObj = {
+    name: `${playerName}`,
+    score: myGameArea.frameNum,
+  }
+  rankList.push(tempObj);
+
+  // 로컬에 저장하기
+  localStorage.setItem(`ranking`, JSON.stringify(rankList));
+}
+
+getScore();
