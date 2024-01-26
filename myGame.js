@@ -1,31 +1,23 @@
+const $section = document.querySelector(`section`);
+const nameInput = document.querySelector(`.name`);
+const startBtn = document.querySelector(`.startBtn`);
+const rankingDiv = document.querySelector(`.ranking`);
 let myGamePiece;
 let myObstacles = [];
 let myScore;
-let birdImg = new Image();
-birdImg.src = `./imgs/bird.png`;
-let flyingBirdImg = new Image();
-flyingBirdImg.src = `./imgs/flying.png`;
 let backgroundImg = new Image();
-backgroundImg.src = `./imgs/background1.png`;
+let birdImg = new Image();
+let flyingBirdImg = new Image();
 let tree1 = new Image();
-tree1.src = `./imgs/tree1.png`;
-let tree2 = new Image();
-tree2.src = `./imgs/tree2.png`;
-// let tree3 = new Image();
-// tree1.src = `./imgs/tree3.png`;
 let cloud1Img = new Image();
-cloud1Img.src = `./imgs/cloud1.png`;
-// let cloud2Img = new Image();
-// cloud1Img.src = `./imgs/cloud2.png`;
-// let cloud3Img = new Image();
-// cloud1Img.src = `./imgs/cloud3.png`;
 let backX = 1000;
 let rankList = [];
-let rankingDiv = document.querySelector(`.ranking`);
-const $section = document.querySelector(`section`);
-const nameInput = document.querySelector(`.name`);
 let playerName = ``;
-const startBtn = document.querySelector(`.startBtn`);
+backgroundImg.src = `./imgs/background1.png`;
+birdImg.src = `./imgs/bird.png`;
+flyingBirdImg.src = `./imgs/flying.png`;
+tree1.src = `./imgs/tree1.png`;
+cloud1Img.src = `./imgs/cloud1.png`;
 
 startBtn.addEventListener(`click`, () => {
   if (nameInput.value.trim() == ``) {
@@ -82,7 +74,7 @@ class Component {
     this.height = height;
     this.x = x;
     this.y = y;
-    this.speed = 1;
+    this.speed = 2;
     this.gravity = 0.025;
     this.gravitySpeed = 0;
     this.update = function () {
@@ -105,10 +97,10 @@ class Component {
       let myBottom = this.y + this.height;
       let myTop = this.y;
 
-      let otherRight = otherObj.x + otherObj.width - 30;
-      let otherLeft = otherObj.x + 30;
-      let otherBottom = otherObj.y + otherObj.height - 30;
-      let otherTop = otherObj.y + 30;
+      let otherRight = otherObj.x + otherObj.width - 25;
+      let otherLeft = otherObj.x + 25;
+      let otherBottom = otherObj.y + otherObj.height - 25;
+      let otherTop = otherObj.y + 25;
 
       let isCrash = true;
 
@@ -122,6 +114,7 @@ class Component {
     }
   }
 }
+
 function endTheGame() {
   myGameArea.stop();
   setScore();
@@ -151,15 +144,12 @@ function updateGameArea() {
     x = myGameArea.canvas.width;
     y = myGameArea.canvas.height;
     const ran = Math.random() * 150 + 50;
-    let gap = 300;
     myObstacles.push(new Component(ran, ran, `green`, x, y - ran));
-    if (Math.random() <= 0.2) {
-      let cloudHeight = y - ran - gap;
-      if (cloudHeight <= 25) cloudHeight = 25;
-      myObstacles.push(new Component(Math.random() * 200 + 100, Math.random() * 100 + 25, `black`, x, Math.random() * 200));
+    if (Math.random() <= 0.25) {
+      const cloudSize = Math.random() * 75 + 25;
+      myObstacles.push(new Component(cloudSize, cloudSize, `black`, x, Math.random() * 250 - 25));
     }
   }
-  console.log(`myObstacles.length : `, myObstacles.length);
   if (myObstacles.length > 50) myObstacles.shift();
   for (let i = 0; i < myObstacles.length; i += 1) {
     myObstacles[i].x -= 1;
@@ -207,6 +197,9 @@ function keyHandler(eKey, value) {
 function movePlayer() {
   myGamePiece.gravitySpeed += myGamePiece.gravity;
   myGamePiece.y += myGamePiece.gravitySpeed;
+  if (myGamePiece.y + (myGamePiece.height / 2) >= myGameArea.canvas.height) {
+    myGamePiece.y = myGameArea.canvas.height - myGamePiece.height / 2;
+  }
   if (key.w && myGamePiece.y > 0) {
     myGamePiece.y -= myGamePiece.speed;
   }
@@ -223,6 +216,7 @@ function movePlayer() {
     myGamePiece.y -= myGamePiece.speed;
     myGamePiece.gravitySpeed = 0;
     birdImg.src = `./imgs/flying.png`;
+    if (myGamePiece.y <= 0 - (myGamePiece.height / 2)) myGamePiece.y = 0 - (myGamePiece.height / 2);
   } else {
     birdImg.src = `./imgs/bird.png`;
   }
@@ -247,6 +241,7 @@ function getScore() {
     rankingDiv.appendChild($li);
   });
 }
+
 function setScore() {
   let tempObj = {
     name: `${playerName}`,
