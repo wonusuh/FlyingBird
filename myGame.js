@@ -151,6 +151,7 @@ function updateGameArea() {
       myObstacles.push(new Component(cloudSize, cloudSize, `black`, x, Math.random() * 250 - 25));
     }
   }
+  console.log(myObstacles.length);
   if (myObstacles.length > 50) myObstacles.shift();
   for (let i = 0; i < myObstacles.length; i += 1) {
     myObstacles[i].x -= 1;
