@@ -13,6 +13,7 @@ let cloud1Img = new Image();
 let backX = 1000;
 let rankList = [];
 let playerName = ``;
+
 backgroundImg.src = `./imgs/background1.png`;
 birdImg.src = `./imgs/bird.png`;
 flyingBirdImg.src = `./imgs/flying.png`;
